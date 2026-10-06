@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Say It Right! · Unit 10</title>
+<meta name="theme-color" content="#14213D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #14213D;
+    --navy-soft: #1D2E54;
+    --navy-line: #2C3E66;
+    --cream: #F5F3EE;
+    --paper: #FCFBF8;
+    --ink: #14213D;
+    --muted: #5A6377;
+    --line: #E3DFD6;
+    --orange: #F0884A;
+    --orange-soft: #FCE9DC;
+    --rust: #B4471B;
+    --green: #1E7A4C;
+    --green-soft: #E3F2EA;
+    --red: #B42318;
+    --red-soft: #FBE9E7;
+    --radius: 14px;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; }
+  .hidden { display: none !important; }
+
+  /* ---------- Start screen ---------- */
+  .start-screen {
+    min-height: 100vh;
+    background: var(--navy);
+    color: #F5F3EE;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 20px calc(40px + env(safe-area-inset-bottom));
+  }
+  .start-inner { width: 100%; max-width: 520px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin: 0 0 18px;
+  }
+  .start-title {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(48px, 13vw, 72px);
+    line-height: 1;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  .start-subtitle { font-size: 17px; line-height: 1.5; color: #C9D1E3; margin: 0 0 32px; }
+  .stat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 32px; }
+  .stat-tile {
+    border: 1px solid var(--navy-line);
+    border-radius: 12px;
+    padding: 14px 12px;
+  }
+  .stat-tile.accent { background: var(--orange); border-color: var(--orange); color: var(--navy); }
+  .stat-value { font-family: var(--serif); font-weight: 700; font-size: 30px; line-height: 1; }
+  .stat-label { font-size: 13px; margin-top: 6px; color: #C9D1E3; }
+  .stat-tile.accent .stat-label { color: var(--navy); font-weight: 500; }
+  .name-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #E4E8F1; }
+  .name-input {
+    width: 100%;
+    font: 500 18px var(--sans);
+    padding: 16px 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--navy-line);
+    background: var(--navy-soft);
+    color: #fff;
+    outline: none;
+  }
+  .name-input::placeholder { color: #8C97B0; }
+  .name-input:focus { border-color: var(--orange); }
+  .name-error { color: #FFB38A; font-size: 14px; min-height: 20px; margin: 8px 0 6px; }
+  .rules { font-size: 14px; line-height: 1.55; color: #AEB8CE; margin: 18px 0 0; padding-left: 18px; }
+  .rules li + li { margin-top: 4px; }
+
+  .primary-button {
+    width: 100%;
+    min-height: 54px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--orange);
+    color: var(--navy);
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.08s ease, filter 0.15s ease;
+  }
+  .primary-button:hover { filter: brightness(1.05); }
+  .primary-button:active { transform: scale(0.98); }
+  .primary-button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ---------- Quiz screen ---------- */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--navy);
+    color: #fff;
+    padding: 12px 16px 14px;
+    padding-top: calc(12px + env(safe-area-inset-top));
+  }
+  .top-bar-inner { max-width: 640px; margin: 0 auto; }
+  .top-bar-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .top-bar-title { font-family: var(--serif); font-weight: 700; font-size: 20px; }
+  .top-bar-player { font-size: 13px; color: #AEB8CE; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%; }
+  .question-nav {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .nav-pill {
+    height: 38px;
+    border-radius: 10px;
+    border: 1.5px solid var(--navy-line);
+    background: transparent;
+    color: #C9D1E3;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .nav-pill.answered { background: var(--navy-soft); border-color: var(--orange); color: var(--orange); }
+  .nav-pill.current { background: var(--orange); border-color: var(--orange); color: var(--navy); }
+  .progress-track { height: 4px; background: var(--navy-line); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0; background: var(--orange); border-radius: 4px; transition: width 0.3s ease; }
+
+  .quiz-main { max-width: 640px; margin: 0 auto; padding: 24px 16px 140px; }
+  .question-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px 20px;
+    animation: rise 0.28s ease;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .question-counter {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin: 0 0 12px;
+  }
+  .question-prompt { font-family: var(--serif); font-weight: 600; font-size: 23px; line-height: 1.3; margin: 0; }
+  .question-expression {
+    margin: 18px 0 4px;
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--cream);
+    text-align: center;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1.1;
+    color: var(--navy);
+  }
+  .question-expression sup { font-size: 0.6em; }
+  .options-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .option-button {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 58px;
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.35;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.08s ease;
+  }
+  .option-button:hover { border-color: #C9C3B6; }
+  .option-button:active { transform: scale(0.99); }
+  .option-letter {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: var(--cream);
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .option-button.selected { border-color: var(--navy); background: #EEF1F7; }
+  .option-button.selected .option-letter { background: var(--navy); color: #fff; }
+
+  .bottom-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(245, 243, 238, 0.94);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .bottom-bar-inner { max-width: 640px; margin: 0 auto; display: flex; gap: 10px; }
+  .secondary-button {
+    min-height: 54px;
+    padding: 0 18px;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .secondary-button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .bottom-bar .primary-button { flex: 1; }
+  .answered-note { text-align: center; font-size: 13px; color: var(--muted); margin: 14px 0 0; }
+
+  /* ---------- Result screen ---------- */
+  .result-hero {
+    background: var(--navy);
+    color: #fff;
+    padding: 40px 20px 36px;
+    padding-top: calc(40px + env(safe-area-inset-top));
+  }
+  .result-hero-inner { max-width: 640px; margin: 0 auto; }
+  .result-greeting { font-family: var(--serif); font-weight: 700; font-size: 32px; line-height: 1.15; margin: 0 0 22px; }
+  .score-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .score-tile { border: 1px solid var(--navy-line); border-radius: 14px; padding: 16px; }
+  .score-tile.accent { background: var(--orange); border-color: var(--orange); color: var(--navy); }
+  .score-value { font-family: var(--serif); font-weight: 700; font-size: 40px; line-height: 1; }
+  .score-label { font-size: 14px; margin-top: 8px; color: #C9D1E3; }
+  .score-tile.accent .score-label { color: var(--navy); font-weight: 500; }
+  .send-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--navy-soft);
+    font-size: 15px;
+    line-height: 1.4;
+    color: #E4E8F1;
+  }
+  .status-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: #8C97B0; }
+  .send-status.sending .status-dot { background: var(--orange); animation: pulse 1s infinite; }
+  .send-status.sent .status-dot { background: #4CC38A; }
+  .send-status.failed .status-dot { background: #FF7A66; }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+  .retry-button {
+    margin-left: auto;
+    flex: none;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 0;
+    background: var(--orange);
+    color: var(--navy);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .review-main { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+  .review-title { font-family: var(--serif); font-weight: 700; font-size: 22px; margin: 0 0 14px; }
+  .review-list { display: flex; flex-direction: column; gap: 10px; }
+  .review-item {
+    display: flex;
+    gap: 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .review-badge {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .review-item.correct .review-badge { background: var(--green-soft); color: var(--green); }
+  .review-item.wrong .review-badge { background: var(--red-soft); color: var(--red); }
+  .review-question { font-weight: 600; font-size: 15px; line-height: 1.4; margin: 3px 0 6px; }
+  .review-line { font-size: 14px; line-height: 1.45; color: var(--muted); margin: 0; }
+  .review-line strong { color: var(--ink); font-weight: 600; }
+  .review-item.correct .review-line.yours strong { color: var(--green); }
+  .review-item.wrong .review-line.yours strong { color: var(--red); }
+  .footer-note { text-align: center; font-size: 13px; color: var(--muted); margin: 26px 0 0; }
+
+  @media (min-width: 600px) {
+    .question-card { padding: 32px 30px; }
+    .question-prompt { font-size: 26px; }
+    .question-expression { font-size: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Start screen: the player must enter a name before the quiz opens -->
+<section id="startScreen" class="start-screen">
+  <div class="start-inner">
+    <p class="eyebrow">Math Talk Challenge · Unit 10</p>
+    <h1 class="start-title">Say It Right!</h1>
+    <p class="start-subtitle">How well can you read mathematics in English? Answer 10 questions about symbols, numbers, fractions and powers.</p>
+
+    <div class="stat-row">
+      <div class="stat-tile"><div class="stat-value">10</div><div class="stat-label">questions</div></div>
+      <div class="stat-tile"><div class="stat-value">7</div><div class="stat-label">points each</div></div>
+      <div class="stat-tile accent"><div class="stat-value">70</div><div class="stat-label">points max</div></div>
+    </div>
+
+    <form id="startForm" novalidate>
+      <label class="name-label" for="playerNameInput">Your name and surname</label>
+      <input id="playerNameInput" class="name-input" type="text" autocomplete="name" maxlength="60" placeholder="e.g. Aigerim Nurlanova">
+      <p id="nameError" class="name-error" role="alert"></p>
+      <button id="startButton" class="primary-button" type="submit">Start</button>
+    </form>
+
+    <ul class="rules">
+      <li>Choose one answer for each question.</li>
+      <li>Use the numbers at the top to jump between questions.</li>
+      <li>Press Finish when you are done. You have one attempt.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Quiz screen: one question at a time with navigation on top -->
+<section id="quizScreen" class="hidden">
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="top-bar-row">
+        <span class="top-bar-title">Say It Right!</span>
+        <span id="topBarPlayer" class="top-bar-player"></span>
+      </div>
+      <nav id="questionNav" class="question-nav" aria-label="Questions"></nav>
+      <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+    </div>
+  </header>
+
+  <main class="quiz-main">
+    <article id="questionCard" class="question-card"></article>
+    <p id="answeredNote" class="answered-note"></p>
+  </main>
+
+  <div class="bottom-bar">
+    <div class="bottom-bar-inner">
+      <button id="previousButton" class="secondary-button" type="button">Back</button>
+      <button id="nextButton" class="primary-button" type="button">Next</button>
+    </div>
+  </div>
+</section>
+
+<!-- Result screen: score, Telegram status and answer review -->
+<section id="resultScreen" class="hidden">
+  <header class="result-hero">
+    <div class="result-hero-inner">
+      <p class="eyebrow">Your result</p>
+      <h1 id="resultGreeting" class="result-greeting"></h1>
+      <div class="score-row">
+        <div class="score-tile accent"><div id="resultPoints" class="score-value"></div><div class="score-label">points out of 70</div></div>
+        <div class="score-tile"><div id="resultCorrect" class="score-value"></div><div class="score-label">correct answers</div></div>
+      </div>
+      <div id="sendStatus" class="send-status" role="status">
+        <span class="status-dot"></span>
+        <span id="sendStatusText">Sending your result to the teacher…</span>
+        <button id="retryButton" class="retry-button hidden" type="button">Try again</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="review-main">
+    <h2 class="review-title">Your answers</h2>
+    <div id="reviewList" class="review-list"></div>
+    <p class="footer-note">Unit 10 · Numbers and Basic Math</p>
+  </main>
+</section>
+
+<script>
+  // ===== Telegram settings: paste the bot token and the chat id here =====
+  const TELEGRAM_BOT_TOKEN = "8899360889:AAGdB4-9PzHpmpoPymn7Ar7LlaVP41P5_3E";
+  const TELEGRAM_CHAT_ID = "-5553431554";
+
+  const POINTS_PER_CORRECT_ANSWER = 7;
+  const STORAGE_KEY = "sayItRight.unit10.v1";
+  const AUTO_ADVANCE_DELAY_MS = 450;
+
+  // The first option in every list is the correct one; options are shuffled for each player
+  const QUESTIONS = [
+    {
+      prompt: "How do you read this?",
+      expression: "2 + 5 = 7",
+      options: ["Two plus five equals seven.", "Two times five equals seven.", "Two minus five equals seven.", "Two over five equals seven."]
+    },
+    {
+      prompt: "How do you read this?",
+      expression: "10 ÷ 5 = 2",
+      options: ["Ten divided by five equals two.", "Ten divided on five equals two.", "Ten times five equals two.", "Ten minus five equals two."]
+    },
+    {
+      prompt: "True or false: “less” and “minus” mean the same operation.",
+      expression: "",
+      options: ["True", "False"]
+    },
+    {
+      prompt: "What is the opposite of “add”?",
+      expression: "",
+      options: ["subtract", "multiply", "divide", "equal"]
+    },
+    {
+      prompt: "Plus or over? “Twelve ___ three equals four.”",
+      expression: "12 ? 3 = 4",
+      options: ["over", "plus", "times", "minus"]
+    },
+    {
+      prompt: "How do you read this number?",
+      expression: "2,500",
+      options: ["two thousand five hundred", "two thousands five hundreds", "twenty-five thousand", "two point five hundred"]
+    },
+    {
+      prompt: "How do you read this fraction?",
+      expression: "¾",
+      options: ["three quarters", "three fours", "four thirds", "three and four"]
+    },
+    {
+      prompt: "How do you read this decimal?",
+      expression: "0.75",
+      options: ["zero point seven five", "zero point seventy-five", "zero comma seventy-five", "seventy-five point zero"]
+    },
+    {
+      prompt: "How do you read this?",
+      expression: "x<sup>2</sup>",
+      options: ["x squared", "x cubed", "x two", "two x"]
+    },
+    {
+      prompt: "How do you read this?",
+      expression: "√x",
+      options: ["the square root of x", "the square of x", "the cube root of x", "x root two"]
+    }
+  ];
+
+  const OPTION_LETTERS = ["A", "B", "C", "D"];
+
+  // ----- State -----
+  let quizState = loadSavedState() || createEmptyState();
+
+  function createEmptyState() {
+    return {
+      playerName: "",
+      startedAt: null,
+      finishedAt: null,
+      currentQuestionIndex: 0,
+      selectedOptionByQuestion: QUESTIONS.map(() => null),
+      optionOrderByQuestion: QUESTIONS.map((question) => shuffleArray(question.options.map((option, optionIndex) => optionIndex))),
+      resultSent: false
+    };
+  }
+
+  function shuffleArray(sourceArray) {
+    const shuffledArray = sourceArray.slice();
+    for (let currentPosition = shuffledArray.length - 1; currentPosition > 0; currentPosition--) {
+      const randomPosition = Math.floor(Math.random() * (currentPosition + 1));
+      [shuffledArray[currentPosition], shuffledArray[randomPosition]] = [shuffledArray[randomPosition], shuffledArray[currentPosition]];
+    }
+    return shuffledArray;
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(quizState)); } catch (storageError) { /* private mode: the quiz still works without saving */ }
+  }
+
+  function loadSavedState() {
+    try {
+      // Opening the page with ?reset=1 clears the saved attempt (for testing before the lesson)
+      if (new URLSearchParams(window.location.search).get("reset") === "1") {
+        localStorage.removeItem(STORAGE_KEY);
+        window.history.replaceState(null, "", window.location.pathname);
+        return null;
+      }
+      const savedText = localStorage.getItem(STORAGE_KEY);
+      if (!savedText) return null;
+      const savedState = JSON.parse(savedText);
+      const isValidState = savedState && Array.isArray(savedState.selectedOptionByQuestion) && savedState.selectedOptionByQuestion.length === QUESTIONS.length;
+      return isValidState ? savedState : null;
+    } catch (storageError) {
+      return null;
+    }
+  }
+
+  // ----- Elements -----
+  const startScreen = document.getElementById("startScreen");
+  const quizScreen = document.getElementById("quizScreen");
+  const resultScreen = document.getElementById("resultScreen");
+  const startForm = document.getElementById("startForm");
+  const playerNameInput = document.getElementById("playerNameInput");
+  const nameError = document.getElementById("nameError");
+  const topBarPlayer = document.getElementById("topBarPlayer");
+  const questionNav = document.getElementById("questionNav");
+  const progressFill = document.getElementById("progressFill");
+  const questionCard = document.getElementById("questionCard");
+  const answeredNote = document.getElementById("answeredNote");
+  const previousButton = document.getElementById("previousButton");
+  const nextButton = document.getElementById("nextButton");
+  const sendStatus = document.getElementById("sendStatus");
+  const sendStatusText = document.getElementById("sendStatusText");
+  const retryButton = document.getElementById("retryButton");
+
+  let autoAdvanceTimer = null;
+
+  function showScreen(screenToShow) {
+    [startScreen, quizScreen, resultScreen].forEach((screen) => screen.classList.toggle("hidden", screen !== screenToShow));
+    window.scrollTo(0, 0);
+  }
+
+  // ----- Start -----
+  startForm.addEventListener("submit", (submitEvent) => {
+    submitEvent.preventDefault();
+    const enteredName = playerNameInput.value.trim().replace(/\s+/g, " ");
+    if (enteredName.length < 2) {
+      nameError.textContent = "Please write your name to start.";
+      playerNameInput.focus();
+      return;
+    }
+    quizState.playerName = enteredName;
+    quizState.startedAt = Date.now();
+    saveState();
+    openQuiz();
+  });
+
+  playerNameInput.addEventListener("input", () => { nameError.textContent = ""; });
+
+  function openQuiz() {
+    topBarPlayer.textContent = quizState.playerName;
+    buildQuestionNav();
+    renderQuestion();
+    showScreen(quizScreen);
+  }
+
+  // ----- Quiz -----
+  function buildQuestionNav() {
+    questionNav.innerHTML = "";
+    QUESTIONS.forEach((question, questionIndex) => {
+      const navPill = document.createElement("button");
+      navPill.type = "button";
+      navPill.className = "nav-pill";
+      navPill.textContent = String(questionIndex + 1);
+      navPill.setAttribute("aria-label", "Question " + (questionIndex + 1));
+      navPill.addEventListener("click", () => goToQuestion(questionIndex));
+      questionNav.appendChild(navPill);
+    });
+  }
+
+  function countAnsweredQuestions() {
+    return quizState.selectedOptionByQuestion.filter((selectedOption) => selectedOption !== null).length;
+  }
+
+  function updateNavAndProgress() {
+    Array.from(questionNav.children).forEach((navPill, questionIndex) => {
+      const isCurrent = questionIndex === quizState.currentQuestionIndex;
+      navPill.classList.toggle("current", isCurrent);
+      navPill.classList.toggle("answered", quizState.selectedOptionByQuestion[questionIndex] !== null);
+      if (isCurrent) navPill.setAttribute("aria-current", "step"); else navPill.removeAttribute("aria-current");
+    });
+    const answeredCount = countAnsweredQuestions();
+    progressFill.style.width = (answeredCount / QUESTIONS.length) * 100 + "%";
+    answeredNote.textContent = answeredCount + " of " + QUESTIONS.length + " answered";
+
+    const isLastQuestion = quizState.currentQuestionIndex === QUESTIONS.length - 1;
+    const allAnswered = answeredCount === QUESTIONS.length;
+    previousButton.disabled = quizState.currentQuestionIndex === 0;
+    nextButton.textContent = allAnswered || isLastQuestion ? "Finish" : "Next";
+  }
+
+  function renderQuestion() {
+    const questionIndex = quizState.currentQuestionIndex;
+    const question = QUESTIONS[questionIndex];
+    const selectedOption = quizState.selectedOptionByQuestion[questionIndex];
+    const optionOrder = quizState.optionOrderByQuestion[questionIndex];
+
+    questionCard.innerHTML = "";
+    // Restart the entrance animation for each new question
+    questionCard.style.animation = "none";
+    void questionCard.offsetWidth;
+    questionCard.style.animation = "";
+
+    const counterLine = document.createElement("p");
+    counterLine.className = "question-counter";
+    counterLine.textContent = "Question " + (questionIndex + 1) + " of " + QUESTIONS.length;
+    questionCard.appendChild(counterLine);
+
+    const promptHeading = document.createElement("h2");
+    promptHeading.className = "question-prompt";
+    promptHeading.textContent = question.prompt;
+    questionCard.appendChild(promptHeading);
+
+    if (question.expression) {
+      const expressionBox = document.createElement("div");
+      expressionBox.className = "question-expression";
+      expressionBox.innerHTML = question.expression;
+      questionCard.appendChild(expressionBox);
+    }
+
+    const optionsList = document.createElement("div");
+    optionsList.className = "options-list";
+    optionsList.setAttribute("role", "group");
+    optionsList.setAttribute("aria-label", "Answer options");
+
+    optionOrder.forEach((originalOptionIndex, displayPosition) => {
+      const optionButton = document.createElement("button");
+      optionButton.type = "button";
+      optionButton.className = "option-button" + (selectedOption === originalOptionIndex ? " selected" : "");
+      optionButton.setAttribute("aria-pressed", selectedOption === originalOptionIndex ? "true" : "false");
+
+      const letterBadge = document.createElement("span");
+      letterBadge.className = "option-letter";
+      letterBadge.textContent = OPTION_LETTERS[displayPosition];
+
+      const optionText = document.createElement("span");
+      optionText.textContent = question.options[originalOptionIndex];
+
+      optionButton.append(letterBadge, optionText);
+      optionButton.addEventListener("click", () => chooseOption(originalOptionIndex));
+      optionsList.appendChild(optionButton);
+    });
+
+    questionCard.appendChild(optionsList);
+    updateNavAndProgress();
+  }
+
+  function chooseOption(originalOptionIndex) {
+    quizState.selectedOptionByQuestion[quizState.currentQuestionIndex] = originalOptionIndex;
+    saveState();
+    renderQuestion();
+
+    // After an answer, move on to the next question that has no answer yet
+    clearTimeout(autoAdvanceTimer);
+    const nextUnansweredIndex = findNextUnansweredQuestion(quizState.currentQuestionIndex);
+    if (nextUnansweredIndex !== null) {
+      autoAdvanceTimer = setTimeout(() => goToQuestion(nextUnansweredIndex), AUTO_ADVANCE_DELAY_MS);
+    }
+  }
+
+  function findNextUnansweredQuestion(fromIndex) {
+    for (let stepsAhead = 1; stepsAhead < QUESTIONS.length; stepsAhead++) {
+      const candidateIndex = (fromIndex + stepsAhead) % QUESTIONS.length;
+      if (quizState.selectedOptionByQuestion[candidateIndex] === null) return candidateIndex;
+    }
+    return null;
+  }
+
+  function goToQuestion(questionIndex) {
+    clearTimeout(autoAdvanceTimer);
+    quizState.currentQuestionIndex = questionIndex;
+    saveState();
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  previousButton.addEventListener("click", () => {
+    if (quizState.currentQuestionIndex > 0) goToQuestion(quizState.currentQuestionIndex - 1);
+  });
+
+  nextButton.addEventListener("click", () => {
+    const isLastQuestion = quizState.currentQuestionIndex === QUESTIONS.length - 1;
+    const allAnswered = countAnsweredQuestions() === QUESTIONS.length;
+    if (allAnswered || isLastQuestion) {
+      finishQuiz();
+    } else {
+      goToQuestion(quizState.currentQuestionIndex + 1);
+    }
+  });
+
+  // ----- Finish -----
+  function finishQuiz() {
+    const unansweredCount = QUESTIONS.length - countAnsweredQuestions();
+    if (unansweredCount > 0) {
+      const confirmMessage = unansweredCount === 1
+        ? "1 question has no answer. Finish anyway?"
+        : unansweredCount + " questions have no answer. Finish anyway?";
+      if (!window.confirm(confirmMessage)) return;
+    }
+    clearTimeout(autoAdvanceTimer);
+    quizState.finishedAt = Date.now();
+    saveState();
+    openResult();
+    sendResult();
+  }
+
+  function calculateResult() {
+    const answerDetails = QUESTIONS.map((question, questionIndex) => {
+      const selectedOption = quizState.selectedOptionByQuestion[questionIndex];
+      return {
+        questionNumber: questionIndex + 1,
+        questionText: question.prompt + (question.expression ? " " + stripTags(question.expression) : ""),
+        playerAnswer: selectedOption === null ? null : question.options[selectedOption],
+        correctAnswer: question.options[0],
+        isCorrect: selectedOption === 0
+      };
+    });
+    const correctCount = answerDetails.filter((answerDetail) => answerDetail.isCorrect).length;
+    return { answerDetails, correctCount, points: correctCount * POINTS_PER_CORRECT_ANSWER };
+  }
+
+  function stripTags(htmlText) {
+    // x<sup>2</sup> becomes x² for plain-text messages
+    return htmlText.replace(/<sup>2<\/sup>/g, "²").replace(/<[^>]+>/g, "");
+  }
+
+  function openResult() {
+    const result = calculateResult();
+    const firstName = quizState.playerName.split(" ")[0];
+    document.getElementById("resultGreeting").textContent = (result.correctCount >= 8 ? "Excellent, " : result.correctCount >= 5 ? "Well done, " : "Good try, ") + firstName + "!";
+    document.getElementById("resultPoints").textContent = String(result.points);
+    document.getElementById("resultCorrect").textContent = result.correctCount + "/" + QUESTIONS.length;
+
+    const reviewList = document.getElementById("reviewList");
+    reviewList.innerHTML = "";
+    result.answerDetails.forEach((answerDetail) => {
+      const reviewItem = document.createElement("div");
+      reviewItem.className = "review-item " + (answerDetail.isCorrect ? "correct" : "wrong");
+
+      const reviewBadge = document.createElement("span");
+      reviewBadge.className = "review-badge";
+      reviewBadge.textContent = String(answerDetail.questionNumber);
+      reviewBadge.setAttribute("aria-label", answerDetail.isCorrect ? "Correct" : "Wrong");
+
+      const reviewBody = document.createElement("div");
+      const questionLine = document.createElement("p");
+      questionLine.className = "review-question";
+      questionLine.textContent = answerDetail.questionText;
+
+      const yourAnswerLine = document.createElement("p");
+      yourAnswerLine.className = "review-line yours";
+      yourAnswerLine.append("Your answer: ");
+      const yourAnswerStrong = document.createElement("strong");
+      yourAnswerStrong.textContent = answerDetail.playerAnswer === null ? "no answer" : answerDetail.playerAnswer;
+      yourAnswerLine.appendChild(yourAnswerStrong);
+
+      reviewBody.append(questionLine, yourAnswerLine);
+
+      if (!answerDetail.isCorrect) {
+        const correctAnswerLine = document.createElement("p");
+        correctAnswerLine.className = "review-line";
+        correctAnswerLine.append("Correct answer: ");
+        const correctAnswerStrong = document.createElement("strong");
+        correctAnswerStrong.textContent = answerDetail.correctAnswer;
+        correctAnswerLine.appendChild(correctAnswerStrong);
+        reviewBody.appendChild(correctAnswerLine);
+      }
+
+      reviewItem.append(reviewBadge, reviewBody);
+      reviewList.appendChild(reviewItem);
+    });
+
+    showScreen(resultScreen);
+  }
+
+  // ----- Telegram -----
+  function escapeHtml(plainText) {
+    return String(plainText).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function formatDuration(totalMilliseconds) {
+    const totalSeconds = Math.max(0, Math.round(totalMilliseconds / 1000));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return minutes + " min " + seconds + " s";
+  }
+
+  function buildTelegramMessage(result) {
+    const finishedTime = new Date(quizState.finishedAt).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    const answerLines = result.answerDetails.map((answerDetail) => {
+      const mark = answerDetail.isCorrect ? "✅" : "❌";
+      const givenAnswer = answerDetail.playerAnswer === null ? "no answer" : answerDetail.playerAnswer;
+      const correction = answerDetail.isCorrect ? "" : " → <i>" + escapeHtml(answerDetail.correctAnswer) + "</i>";
+      return answerDetail.questionNumber + ". " + mark + " " + escapeHtml(givenAnswer) + correction;
+    });
+    return [
+      "<b>Say It Right! · Unit 10</b>",
+      "",
+      "👤 <b>" + escapeHtml(quizState.playerName) + "</b>",
+      "🏅 Points: <b>" + result.points + " / 70</b>",
+      "✅ Correct: " + result.correctCount + " / " + QUESTIONS.length,
+      "⏱ Time: " + formatDuration(quizState.finishedAt - quizState.startedAt),
+      "🕒 Finished at " + finishedTime,
+      "",
+      answerLines.join("\n")
+    ].join("\n");
+  }
+
+  function setSendStatus(statusName, statusMessage) {
+    sendStatus.className = "send-status " + statusName;
+    sendStatusText.textContent = statusMessage;
+    retryButton.classList.toggle("hidden", statusName !== "failed");
+  }
+
+  async function sendResult() {
+    if (quizState.resultSent) {
+      setSendStatus("sent", "Your result has been sent to the teacher.");
+      return;
+    }
+    const telegramNotConfigured = TELEGRAM_BOT_TOKEN.startsWith("PASTE") || TELEGRAM_CHAT_ID.startsWith("PASTE");
+    if (telegramNotConfigured) {
+      setSendStatus("failed", "Telegram is not set up yet. Show this screen to the teacher.");
+      retryButton.classList.add("hidden");
+      return;
+    }
+
+    setSendStatus("sending", "Sending your result to the teacher…");
+    try {
+      // Form-encoded body keeps this a simple request, so the browser sends it without a CORS preflight
+      const requestBody = new URLSearchParams({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: buildTelegramMessage(calculateResult()),
+        parse_mode: "HTML",
+        disable_web_page_preview: "true"
+      });
+      const response = await fetch("https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage", {
+        method: "POST",
+        body: requestBody
+      });
+      const responseData = await response.json();
+      if (!responseData.ok) throw new Error(responseData.description || "Telegram error");
+      quizState.resultSent = true;
+      saveState();
+      setSendStatus("sent", "Your result has been sent to the teacher.");
+    } catch (sendError) {
+      setSendStatus("failed", "Could not send the result. Check the internet and try again.");
+    }
+  }
+
+  retryButton.addEventListener("click", sendResult);
+
+  // ----- Restore where the player left off -----
+  if (quizState.finishedAt) {
+    openResult();
+    sendResult();
+  } else if (quizState.playerName) {
+    openQuiz();
+  } else {
+    playerNameInput.focus();
+  }
+</script>
+</body>
+</html>
